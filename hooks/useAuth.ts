@@ -30,7 +30,7 @@ export function useAuth(): UseAuthReturn {
       console.log('Login successful, token received');
       setAuthToken(response.token);
       showToast.success('ログイン成功！');
-      router.push('/'); // Redirect to home page after login
+      router.push('/homepage'); // Redirect to homepage after login
     } catch (err) {
       console.error('Login error:', err);
       let errorMessage = 'ログインに失敗しました';

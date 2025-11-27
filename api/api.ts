@@ -6,6 +6,8 @@ import type {
   RegisterResponse,
   UserInfoResponse,
   ApiError,
+  DishListResponse,
+  FavoriteListResponse,
 } from './types';
 
 /**
@@ -98,6 +100,34 @@ export const authApi = {
    */
   getCurrentUser: async (): Promise<UserInfoResponse> => {
     return apiFetch<UserInfoResponse>('/me', {
+      method: 'GET',
+    });
+  },
+};
+
+/**
+ * Dish API Functions
+ */
+export const dishApi = {
+  /**
+   * Get famous dishes list (top 3 by rate)
+   */
+  getFamousDishes: async (): Promise<DishListResponse> => {
+    return apiFetch<DishListResponse>('/disharmonious', {
+      method: 'GET',
+    });
+  },
+};
+
+/**
+ * Favorite API Functions
+ */
+export const favoriteApi = {
+  /**
+   * Get top 3 favorite dishes for current user
+   */
+  getTop3Favorites: async (): Promise<FavoriteListResponse> => {
+    return apiFetch<FavoriteListResponse>('/favourite-top3', {
       method: 'GET',
     });
   },

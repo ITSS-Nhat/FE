@@ -32,3 +32,32 @@ export interface ApiError {
   message?: string;
 }
 
+// Dish Types
+export interface Dish {
+  id: number;
+  name: string;
+  imageUrl: string;
+  rate: number;
+}
+
+export interface DishListResponse {
+  status: string;
+  data: Dish[];
+  message?: string;
+}
+
+// Favorite Types
+export interface Favorite {
+  id: number;
+  dishesname: string;
+  restaurantname: string;
+  distance: number;
+  imageUrl: string;
+}
+
+export interface FavoriteListResponse {
+  status: string;
+  data: Favorite[];
+  message?: string;
+}
+
