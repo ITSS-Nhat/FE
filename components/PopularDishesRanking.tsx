@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { ChevronRight } from "lucide-react"
 import { DishCard } from "./DishCard"
 
@@ -20,9 +21,9 @@ export function PopularDishesRanking({ dishes, availableImages }: PopularDishesR
     <section className="mb-16">
       <div className="flex justify-between items-center mb-20">
         <h3 className="text-xl font-semibold text-foreground">人気料理ランキング</h3>
-        <a href="#" className="text-primary text-sm font-medium flex items-center gap-1">
+        <Link href="/ranking" className="text-primary text-sm font-medium flex items-center gap-1 hover:text-primary/80 transition-colors">
           詳細 <ChevronRight className="w-4 h-4" />
-        </a>
+        </Link>
       </div>
 
       <div className="relative">

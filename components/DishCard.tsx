@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { Star } from "lucide-react"
 
 interface DishCardProps {
@@ -28,9 +29,23 @@ export function DishCard({ id, imageUrl, name, rate, rank, availableImages = [],
     ? "max-w-[280px] w-full"
     : "max-w-[200px]"
   
+  // Điều hướng đến dish detail hoặc restaurant detail tùy variant
+  const CardWrapper = isRestaurantVariant 
+    ? ({ children }: { children: React.ReactNode }) => (
+        <Link href={`/restaurant/${id}`} className="block">
+          {children}
+        </Link>
+      )
+    : ({ children }: { children: React.ReactNode }) => (
+        <Link href={`/dish/${id}`} className="block">
+          {children}
+        </Link>
+      )
+  
   return (
     <div className={`flex flex-col items-center transition-all ${isFirstPlace ? "-mt-25 md:-mt-15 lg:-mt-15" : ""}`}>
-      <div className={`relative w-full ${cardSize} bg-white rounded-lg shadow-md hover:shadow-xl hover:shadow-yellow-500/50 transition-all border border-slate-200`}>
+      <CardWrapper>
+        <div className={`relative w-full ${cardSize} bg-white rounded-lg shadow-md hover:shadow-xl hover:shadow-yellow-500/50 transition-all border border-slate-200 cursor-pointer`}>
         {/* Image Container */}
         <div className="relative mb-4 w-full p-4">
           <div className="relative">
@@ -83,7 +98,8 @@ export function DishCard({ id, imageUrl, name, rate, rank, availableImages = [],
             </div>
           )}
         </div>
-      </div>
+        </div>
+      </CardWrapper>
     </div>
   )
 }
