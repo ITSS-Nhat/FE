@@ -88,10 +88,14 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex bg-background">
       {/* Left Panel - Decorative */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-amber-50 to-orange-50 items-center justify-center">
-        <div className="flex flex-col items-center gap-8">
-          <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center shadow-lg">
-            <UtensilsCrossed className="w-12 h-12 text-white" />
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-amber-50 to-orange-50 items-center justify-center p-8">
+        <div className="flex flex-col items-center gap-6 w-full max-w-md">
+          <div className="relative w-full aspect-square flex items-center justify-center overflow-hidden rounded-2xl shadow-lg">
+            <img
+              src="/login.png"
+              alt="Vietnamese food"
+              className="w-full h-full object-cover"
+            />
           </div>
           <div className="text-center max-w-xs">
             <p className="text-slate-600 text-sm font-medium">美味しい世界へようこそ</p>

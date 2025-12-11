@@ -28,7 +28,7 @@ export function TopHeader({ userAvatar = null }: TopHeaderProps) {
   }, [showProfileMenu])
 
   return (
-    <header className="sticky top-0 z-40 bg-background border-b">
+    <header className="sticky top-0 z-40 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 shadow-sm">
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
         <Link href="/homepage" className="flex items-center gap-3 text-lg font-medium text-foreground hover:text-primary transition-colors">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center shadow-md">
@@ -43,6 +43,12 @@ export function TopHeader({ userAvatar = null }: TopHeaderProps) {
             <Link href="/homepage" className="text-sm font-medium text-foreground hover:text-yellow-500 transition-colors flex items-center gap-1">
               <Home className="w-4 h-4" />
               ホーム
+            </Link>
+            <Link href="/restaurant/reviews" className="text-sm font-medium text-foreground hover:text-yellow-500 transition-colors">
+              レストランレビュー
+            </Link>
+            <Link href="/ranking" className="text-sm font-medium text-foreground hover:text-yellow-500 transition-colors">
+              ランキング
             </Link>
             <Link href="/" className="text-sm font-medium text-foreground hover:text-yellow-500 transition-colors flex items-center gap-1">
               <Info className="w-4 h-4" />
