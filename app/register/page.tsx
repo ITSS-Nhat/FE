@@ -9,15 +9,127 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 
+// Hàm validation
+const validateName = (name: string): string => {
+  if (!name) return "名前を入力してください";
+  // Chỉ cho phép chữ cái (bao gồm tiếng Nhật, tiếng Việt) và khoảng trắng, không cho phép số và ký tự đặc biệt
+  const nameRegex = /^[\p{L}\s]+$/u;
+  if (!nameRegex.test(name)) {
+    return "名前は文字のみ入力可能です（特殊文字や数字は使用できません）";
+  }
+  if (name.trim().length < 2) {
+    return "名前は2文字以上である必要があります";
+  }
+  return "";
+};
+
+const validateNationality = (nationality: string): string => {
+  if (!nationality) return "国籍を選択してください";
+  if (nationality !== "ベトナム" && nationality !== "日本") {
+    return "ベトナムまたは日本を選択してください";
+  }
+  return "";
+};
+
+const validateEmail = (email: string): string => {
+  if (!email) return "メールを入力してください";
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return "正しいメール形式を入力してください";
+  }
+  return "";
+};
+
+const validatePassword = (password: string): string => {
+  if (!password) return "パスワードを入力してください";
+  if (password.length < 8) {
+    return "パスワードは8文字以上である必要があります";
+  }
+  if (!/[A-Z]/.test(password)) {
+    return "パスワードには大文字が含まれている必要があります";
+  }
+  if (!/[a-z]/.test(password)) {
+    return "パスワードには小文字が含まれている必要があります";
+  }
+  if (!/[0-9]/.test(password)) {
+    return "パスワードには数字が含まれている必要があります";
+  }
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+    return "パスワードには特殊文字が含まれている必要があります";
+  }
+  return "";
+};
+
 export default function RegisterPage() {
   const [name, setName] = useState("");
   const [nationality, setNationality] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<{
+    name?: string;
+    nationality?: string;
+    username?: string;
+    password?: string;
+  }>({});
   const { register, isLoading, error } = useAuth();
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    // Chỉ cho phép chữ cái và khoảng trắng, loại bỏ ký tự đặc biệt và số
+    // Loại bỏ số (0-9) trước, sau đó loại bỏ các ký tự không phải chữ cái và khoảng trắng
+    value = value.replace(/[0-9]/g, ''); // Loại bỏ số
+    value = value.replace(/[^\p{L}\s]/gu, ''); // Loại bỏ ký tự đặc biệt
+    setName(value);
+    if (errors.name) {
+      setErrors((prev) => ({ ...prev, name: validateName(value) }));
+    }
+  };
+
+  const handleNationalityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setNationality(value);
+    if (errors.nationality) {
+      setErrors((prev) => ({ ...prev, nationality: validateNationality(value) }));
+    }
+  };
+
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setUsername(value);
+    if (errors.username) {
+      setErrors((prev) => ({ ...prev, username: validateEmail(value) }));
+    }
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPassword(value);
+    if (errors.password) {
+      setErrors((prev) => ({ ...prev, password: validatePassword(value) }));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate tất cả trường
+    const nameError = validateName(name);
+    const nationalityError = validateNationality(nationality);
+    const usernameError = validateEmail(username);
+    const passwordError = validatePassword(password);
+    
+    setErrors({
+      name: nameError,
+      nationality: nationalityError,
+      username: usernameError,
+      password: passwordError,
+    });
+
+    // Nếu có lỗi validation, không submit
+    if (nameError || nationalityError || usernameError || passwordError) {
+      return;
+    }
+
     try {
       await register({ name, username, password, national: nationality });
     } catch (err) {
@@ -71,9 +183,13 @@ export default function RegisterPage() {
                 type="text"
                 placeholder="お名前を入力"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={handleNameChange}
+                className={errors.name ? "border-red-500 focus-visible:border-red-500" : ""}
                 required
               />
+              {errors.name && (
+                <p className="text-red-600 text-xs mt-1">{errors.name}</p>
+              )}
             </div>
 
             {/* Nationality Field */}
@@ -84,13 +200,16 @@ export default function RegisterPage() {
               <CustomSelect
                 id="nationality"
                 value={nationality}
-                onChange={(e) => setNationality(e.target.value)}
+                onChange={handleNationalityChange}
+                className={errors.nationality ? "border-red-500 focus-visible:border-red-500" : ""}
                 required
               >
-                <option value="">選択してください</option>
-                <option value="日本">日本</option>
                 <option value="ベトナム">ベトナム</option>
+                <option value="日本">日本</option>
               </CustomSelect>
+              {errors.nationality && (
+                <p className="text-red-600 text-xs mt-1">{errors.nationality}</p>
+              )}
             </div>
 
             {/* Username Field */}
@@ -100,12 +219,16 @@ export default function RegisterPage() {
               </Label>
               <CustomInput
                 id="username"
-                type="text"
-                placeholder="username"
+                type="email"
+                placeholder="example@email.com"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={handleUsernameChange}
+                className={errors.username ? "border-red-500 focus-visible:border-red-500" : ""}
                 required
               />
+              {errors.username && (
+                <p className="text-red-600 text-xs mt-1">{errors.username}</p>
+              )}
             </div>
 
             {/* Password Field */}
@@ -118,9 +241,13 @@ export default function RegisterPage() {
                 type="password"
                 placeholder="••••••••"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={handlePasswordChange}
+                className={errors.password ? "border-red-500 focus-visible:border-red-500" : ""}
                 required
               />
+              {errors.password && (
+                <p className="text-red-600 text-xs mt-1">{errors.password}</p>
+              )}
             </div>
 
             {/* Error Message */}

@@ -21,9 +21,11 @@ export function TopHeader({ userAvatar = null }: TopHeaderProps) {
         setShowProfileMenu(false)
       }
     }
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [])
+    if (showProfileMenu) {
+      document.addEventListener("mousedown", handleClickOutside)
+      return () => document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [showProfileMenu])
 
   return (
     <header className="sticky top-0 z-40 bg-background border-b">
@@ -49,11 +51,7 @@ export function TopHeader({ userAvatar = null }: TopHeaderProps) {
           </nav>
 
           {/* Profile Menu */}
-          <div
-            onMouseEnter={() => setShowProfileMenu(true)}
-            onMouseLeave={() => setShowProfileMenu(false)}
-            className="flex items-center gap-2 cursor-pointer"
-          >
+          <div className="relative flex items-center gap-2">
             <Link 
               href="/profile"
               className="hidden md:block text-sm font-medium text-foreground hover:text-yellow-500 transition-colors"
@@ -61,6 +59,7 @@ export function TopHeader({ userAvatar = null }: TopHeaderProps) {
               プロフィール
             </Link>
             <button
+              onClick={() => setShowProfileMenu(!showProfileMenu)}
               className="p-2 hover:bg-muted rounded-lg transition-colors relative"
               aria-label="User profile"
             >
@@ -78,10 +77,7 @@ export function TopHeader({ userAvatar = null }: TopHeaderProps) {
           </div>
           
           {showProfileMenu && (
-            <div
-              onMouseEnter={() => setShowProfileMenu(true)}
-              onMouseLeave={() => setShowProfileMenu(false)}
-              className="absolute right-0 top-full mt-2 w-48 bg-background border rounded-lg shadow-lg z-50"
+            <div className="absolute right-0 top-full mt-2 w-48 bg-background border rounded-lg shadow-lg z-50"
             >
               <Link
                 href="/profile"

@@ -2,6 +2,7 @@
 
 import { MessageCircle, Search } from "lucide-react"
 import { useState, useEffect, useRef, useMemo } from "react"
+import { useRouter } from "next/navigation"
 import { CustomInput } from "@/components/ui/custom-input"
 import { TopHeader } from "@/components/TopHeader"
 import { PopularDishesRanking } from "@/components/PopularDishesRanking"
@@ -10,7 +11,7 @@ import { NearbyRestaurants } from "@/components/NearbyRestaurants"
 import { RecommendedDishes } from "@/components/RecommendedDishes"
 import { AISupportModal } from "@/components/AISupportModal"
 import { authApi } from "@/api/api"
-import { getAuthToken } from "@/api/config"
+import { getAuthToken, removeAuthToken } from "@/api/config"
 
 // Helper function to decode JWT and get username (without @gmail.com)
 const getUsernameFromToken = (): string | null => {
@@ -33,11 +34,13 @@ const getUsernameFromToken = (): string | null => {
 }
 
 export default function HomePage() {
+  const router = useRouter()
   const [showAISupport, setShowAISupport] = useState(false)
   const [userName, setUserName] = useState("はる")
   const [userAvatar, setUserAvatar] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [showSearchResults, setShowSearchResults] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
 
   const popularDishes = [
     { id: 1, imageUrl: "/pho-noodle-soup-authentic-vietnamese.jpg", name: "料理1", rate: 4.8 },
@@ -67,25 +70,45 @@ export default function HomePage() {
     { id: 6, name: "料理6", restaurant: "ABCレストラン - 1km", image: "/spring-rolls-fresh-vietnamese.jpg" },
   ]
 
-  // Fetch user info on mount
+  // Check authentication and redirect if not logged in
   useEffect(() => {
-    const fetchUserInfo = async () => {
+    const checkAuth = async () => {
+      const token = getAuthToken()
+      
+      // Nếu không có token, redirect về login
+      if (!token) {
+        router.push('/login')
+        return
+      }
+
+      // Kiểm tra token có hợp lệ không bằng cách gọi API
       try {
+        const userInfo = await authApi.getCurrentUser()
+        setIsAuthenticated(true)
+        
         // Get username from JWT token
         const username = getUsernameFromToken()
         if (username) {
           setUserName(username)
         }
         
-        // Try to get user info from API
-        await authApi.getCurrentUser()
         // In the future, if API returns name and avatar, update here
+        if (userInfo.data) {
+          // Có thể cập nhật avatar và tên từ API response
+          // Ví dụ: setUserAvatar(userInfo.data.avatar)
+          // Ví dụ: setUserName(userInfo.data.name)
+        }
       } catch (error) {
         console.error("Failed to fetch user info:", error)
+        // Token không hợp lệ hoặc đã hết hạn, xóa token và redirect về login
+        removeAuthToken()
+        setIsAuthenticated(false)
+        router.push('/login')
       }
     }
-    fetchUserInfo()
-  }, [])
+    
+    checkAuth()
+  }, [router])
 
 
   // Get all available images from public folder
@@ -174,6 +197,22 @@ export default function HomePage() {
       return () => document.removeEventListener("mousedown", handleClickOutside)
     }
   }, [showSearchResults, searchQuery])
+
+  // Hiển thị loading hoặc không hiển thị gì khi đang kiểm tra authentication
+  if (isAuthenticated === null) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-muted-foreground">読み込み中...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Nếu chưa authenticated, không hiển thị gì (đang redirect)
+  if (!isAuthenticated) {
+    return null
+  }
 
   return (
     <div className="min-h-screen bg-background">

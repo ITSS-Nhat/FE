@@ -91,6 +91,7 @@ export function useAuth(): UseAuthReturn {
 
   const logout = () => {
     removeAuthToken();
+    showToast.success('ログアウトしました');
     router.push('/login');
   };
 
