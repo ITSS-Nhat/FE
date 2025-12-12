@@ -1,6 +1,6 @@
 "use client"
 
-import { User, Settings, LogOut, Home, Info, UtensilsCrossed } from "lucide-react"
+import { User, Settings, LogOut, Home, Info, UtensilsCrossed, Heart } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useAuth } from "@/hooks/useAuth"
@@ -43,6 +43,10 @@ export function TopHeader({ userAvatar = null }: TopHeaderProps) {
             <Link href="/homepage" className="text-sm font-medium text-foreground hover:text-yellow-500 transition-colors flex items-center gap-1">
               <Home className="w-4 h-4" />
               ホーム
+            </Link>
+            <Link href="/favorites" className="text-sm font-medium text-foreground hover:text-yellow-500 transition-colors flex items-center gap-1">
+              <Heart className="w-4 h-4" />
+              お気に入り
             </Link>
             <Link href="/" className="text-sm font-medium text-foreground hover:text-yellow-500 transition-colors flex items-center gap-1">
               <Info className="w-4 h-4" />

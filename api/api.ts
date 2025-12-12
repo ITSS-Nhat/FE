@@ -8,6 +8,8 @@ import type {
   ApiError,
   DishListResponse,
   FavoriteListResponse,
+  AddFavoriteRequest,
+  FavoriteResponse,
 } from './types';
 
 /**
@@ -37,6 +39,7 @@ async function apiFetch<T>(
   }
 
   try {
+    console.log(`API Request: ${config.method || 'GET'} ${url}`);
     const response = await fetch(url, config);
     
     if (!response.ok) {
@@ -45,6 +48,19 @@ async function apiFetch<T>(
       try {
         const errorData: ApiError = await response.json();
         errorMessage = errorData.error || errorData.message || errorMessage;
+        
+        // Special case: Backend returns 404 for "No favourite items found" 
+        // This should be treated as empty data, not an error
+        if (response.status === 404 && 
+            (errorMessage.includes('No favourite items found') || 
+             errorData.message === 'No favourite items found')) {
+          console.log('No favorites found - treating as empty result');
+          return {
+            status: 'success',
+            data: [],
+            message: 'No favorites found'
+          } as T;
+        }
       } catch (parseError) {
         // If response is not JSON, try to get text
         try {
@@ -57,10 +73,13 @@ async function apiFetch<T>(
         }
       }
       
+      console.error(`API Error: ${errorMessage}`, { url, status: response.status });
       throw new Error(errorMessage);
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log(`API Response: ${config.method || 'GET'} ${url}`, data);
+    return data;
   } catch (error) {
     if (error instanceof Error) {
       // Log error for debugging
@@ -129,6 +148,34 @@ export const favoriteApi = {
   getTop3Favorites: async (): Promise<FavoriteListResponse> => {
     return apiFetch<FavoriteListResponse>('/favourite-top3', {
       method: 'GET',
+    });
+  },
+
+  /**
+   * Get all favorite dishes for current user
+   */
+  getAllFavorites: async (): Promise<FavoriteListResponse> => {
+    return apiFetch<FavoriteListResponse>('/favourites', {
+      method: 'GET',
+    });
+  },
+
+  /**
+   * Add item to favorites (dish or restaurant)
+   */
+  addFavorite: async (request: AddFavoriteRequest): Promise<FavoriteResponse> => {
+    return apiFetch<FavoriteResponse>('/favourite', {
+      method: 'POST',
+      body: JSON.stringify(request),
+    });
+  },
+
+  /**
+   * Remove item from favorites by favoriteId
+   */
+  removeFavorite: async (favoriteId: number): Promise<FavoriteResponse> => {
+    return apiFetch<FavoriteResponse>(`/favourite?favouriteId=${favoriteId}`, {
+      method: 'DELETE',
     });
   },
 };
